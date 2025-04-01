@@ -30,7 +30,7 @@ def get_game_details(game_pks):
             
             # Extract game data
             game_data = data.get('gameData', {})
-            live_data = data.get('liveData', {})
+            # live_data = data.get('liveData', {})
             
             # Get teams info
             teams = game_data.get('teams', {})
@@ -38,61 +38,61 @@ def get_game_details(game_pks):
             away_team = teams.get('away', {})
             
             # Get venue info
-            venue = game_data.get('venue', {})
+            # venue = game_data.get('venue', {})
             
             # Get datetime info
             datetime_info = game_data.get('datetime', {})
             
-            # Get game time in local timezone
+            # Get game time in UTC
             game_time_str = datetime_info.get('dateTime')
             day_night = datetime_info.get('dayNight')
             
             # Get weather info
-            weather = game_data.get('weather', {})
+            # weather = game_data.get('weather', {})
             
             # Get field info
-            field_info = venue.get('fieldInfo', {})
+            # field_info = venue.get('fieldInfo', {})
             
             # Get umpire info
-            umpires = live_data.get('boxscore', {}).get('officials', [])
-            for ump in umpires:
-                if ump.get('officialType') == 'Home Plate':
-                    hp_umpire = ump.get('official', {}).get('fullName')
+            # umpires = live_data.get('boxscore', {}).get('officials', [])
+            # for ump in umpires:
+            #     if ump.get('officialType') == 'Home Plate':
+            #         hp_umpire = ump.get('official', {}).get('fullName')
             
             # Compile game details
             game_detail = {
                 'gamePk': game_pk,
-                'gameDate': game_data.get('game', {}).get('calendarEventID', '').split('_')[0],
                 'homeTeam': home_team.get('name'),
                 # 'homeTeamId': home_team.get('id'),
                 'awayTeam': away_team.get('name'),
                 # 'awayTeamId': away_team.get('id'),
-                'venue': venue.get('name'),
+                # 'venue': venue.get('name'),
                 # 'venueId': venue.get('id'),
-                'gameTime': game_time_str,
+                'gameDate': game_time_str.split('T')[0] if game_time_str else None,
+                'gameTime': game_time_str.split('T')[1].rstrip('Z') if game_time_str and 'T' in game_time_str else None,
                 'dayNight': day_night,
                 
                 # Weather information
-                'temperature': weather.get('temp'),
-                'windSpeed': weather.get('wind'),
-                'windDirection': weather.get('windDirection'),
-                'condition': weather.get('condition'),
-                'precipitation': weather.get('precipitation'),
-                'humidity': weather.get('humidity'),
-                'pressure': weather.get('pressure'),
-                'visibility': weather.get('visibility'),
+                # 'temperature': weather.get('temp'),
+                # 'windSpeed': weather.get('wind'),
+                # 'windDirection': weather.get('windDirection'),
+                # 'condition': weather.get('condition'),
+                # 'precipitation': weather.get('precipitation'),
+                # 'humidity': weather.get('humidity'),
+                # 'pressure': weather.get('pressure'),
+                # 'visibility': weather.get('visibility'),
                 
                 # Field information
-                'fieldType': field_info.get('type'),
-                'roofType': venue.get('roofType'),
-                'leftField': field_info.get('leftLine'),
-                'leftCenterField': field_info.get('leftCenter'),
-                'centerField': field_info.get('center'),
-                'rightCenterField': field_info.get('rightCenter'),
-                'rightField': field_info.get('rightLine'),
+                # 'fieldType': field_info.get('type'),
+                # 'roofType': venue.get('roofType'),
+                # 'leftField': field_info.get('leftLine'),
+                # 'leftCenterField': field_info.get('leftCenter'),
+                # 'centerField': field_info.get('center'),
+                # 'rightCenterField': field_info.get('rightCenter'),
+                # 'rightField': field_info.get('rightLine'),
                 
                 # Umpire information
-                'homePlateUmpire': hp_umpire,
+                # 'homePlateUmpire': hp_umpire,
                 
                 'gameDuration': game_data.get('gameInfo', {}).get('gameDurationMinutes'),
             }
@@ -122,8 +122,8 @@ if __name__ == "__main__":
         print("\nGame Details:")
         # Display a subset of columns for readability
         display_columns = [
-            'gamePk', 'gameDate', 'homeTeam', 'awayTeam', 'dayNight', 
-            'venue', 'temperature', 'homePlateUmpire',
+            'gamePk', 'homeTeam', 'awayTeam', 'gameDate', 'gameTime', 
+            'dayNight', 'gameDuration'
         ]
         print(details_df[display_columns])
         
