@@ -35,7 +35,8 @@ def get_pitcher_game_logs(game_pks):
 
                         quit()
                         # SET BASE RECORD WITH GAME DETAILS #
-                        
+                        # SHOULD I DO BATTERS HERE TOO WITH IS_PITCHER FLAG? PROBABLY #
+
                         player_record = {
                             'game_pk': game_pk,
                             'player_id': player_id.replace('ID', ''),
