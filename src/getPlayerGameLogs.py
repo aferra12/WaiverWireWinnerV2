@@ -1,20 +1,30 @@
 import requests
 import pandas as pd
 
-def get_pitcher_game_logs(game_pks):
+from getGameDetails import get_game_details
+
+def get_player_game_logs(game_pks):
     """
-    Extract pitcher game logs from MLB Stats API for specified games.
+    Extract player game logs from MLB Stats API for specified games.
     
     Args:
         game_pks (list): List of MLB game IDs to retrieve data for
         
     Returns:
-        pandas.DataFrame: DataFrame containing pitcher statistics
+        pandas.DataFrame: DataFrame containing player statistics
     """
-    # Track pitcher data
-    pitcher_data = []
+
+    # Grab all of the game details first, will be joined to the player logs later
+    try:
+        game_details = get_game_details(game_pks)
+    except requests.exceptions.RequestException as e:
+        print(f"Error retrieving data for game {game_pk}: {e}")
+
+    # Track player game logs
+    player_data = []
     
     for game_pk in game_pks:
+
         try:
             # MLB Stats API endpoint for game details with boxscore
             url = f"https://statsapi.mlb.com/api/v1/game/{game_pk}/boxscore"
@@ -29,14 +39,15 @@ def get_pitcher_game_logs(game_pks):
                 
                 # Process each player on the team
                 for player_id, player_info in data['teams'][team_type]['players'].items():
+
+                    # I've decided that I'm just going to make one massive table for both pitchers, hitters, and game data #
+                    # SHOULD I DO BATTERS HERE TOO WITH IS_PITCHER FLAG? PROBABLY #
+
                     # Check if player is a pitcher (position code "1")
                     if "position" in player_info and player_info["position"]["code"] == "1":
+                        
+                        ### STOPPED HERE LAST TIME. NEED TO ADD IN FiELDS TO PULL ###
                         # Initialize player record with basic info
-
-                        quit()
-                        # SET BASE RECORD WITH GAME DETAILS #
-                        # SHOULD I DO BATTERS HERE TOO WITH IS_PITCHER FLAG? PROBABLY #
-
                         player_record = {
                             'game_pk': game_pk,
                             'player_id': player_id.replace('ID', ''),
@@ -45,7 +56,7 @@ def get_pitcher_game_logs(game_pks):
                             'team_id': team_id,
                             'did_pitch': False  # Default value
                         }
-                        
+
                         # Check if player has pitching stats for this game
                         if 'stats' in player_info and 'pitching' in player_info['stats'] and player_info['stats']['pitching']:
                             player_record['did_pitch'] = True
@@ -68,6 +79,8 @@ def get_pitcher_game_logs(game_pks):
                         
                         # Add player record to dataset
                         pitcher_data.append(player_record)
+                    else:
+                        print("hi")
             
         except requests.exceptions.RequestException as e:
             print(f"Error retrieving data for game {game_pk}: {e}")
