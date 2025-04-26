@@ -1,3 +1,5 @@
+# MAKE SURE TO IMPLEMENT A RETURN FUNCTION
+
 import requests
 from datetime import datetime, timedelta
 
