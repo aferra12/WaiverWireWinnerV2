@@ -45,10 +45,6 @@ def get_game_details(game_pks):
             # Get datetime info
             datetime_info = game_data.get('datetime', {})
             
-            # Get game time in UTC
-            game_time_str = datetime_info.get('dateTime')
-            day_night = datetime_info.get('dayNight')
-            
             # Get weather info
             # weather = game_data.get('weather', {})
             
@@ -70,9 +66,9 @@ def get_game_details(game_pks):
                 # 'awayTeamId': away_team.get('id'),
                 # 'venue': venue.get('name'),
                 # 'venueId': venue.get('id'),
-                'gameDate': game_time_str.split('T')[0] if game_time_str else None,
-                'gameTime': game_time_str.split('T')[1].rstrip('Z') if game_time_str and 'T' in game_time_str else None,
-                'dayNight': day_night,
+                'gameDate': datetime_info.get('originalDate'),
+                #'gameTime': datetime.strptime(f"{datetime_info.get('time')} {datetime_info.get('ampm')}", "%I:%M %p").strftime("%H:%M"),
+                'dayNight': datetime_info.get('dayNight'),
                 
                 # Weather information
                 # 'temperature': weather.get('temp'),
@@ -114,7 +110,8 @@ def get_game_details(game_pks):
 # Example usage
 if __name__ == "__main__":
     # Example list of game PKs
-    game_pks = [718780]  # Replace with actual game PKs
+    #game_pks = [718780]  # Replace with actual game PKs
+    game_pks = [777712, 777720, 777715, 777716, 777721, 777718, 777717, 777719, 777709, 777711, 777714, 777710, 777707, 777713, 777708]
     
     # Get game details
     details_df = get_game_details(game_pks)
@@ -124,7 +121,7 @@ if __name__ == "__main__":
         print("\nGame Details:")
         # Display a subset of columns for readability
         display_columns = [
-            'gamePk', 'homeTeam', 'awayTeam', 'gameDate', 'gameTime', 
+            'gamePk', 'homeTeam', 'awayTeam', 'gameDate', 
             'dayNight', 'gameDuration'
         ]
         print(details_df[display_columns])
