@@ -4,6 +4,7 @@ import uvicorn
 # Import your helper modules as needed
 # from helpers.data_processor import process_data
 # from helpers.api_client import fetch_data
+from helpers.getLastNightGames import get_last_night_games
 
 app = FastAPI()
 
@@ -11,7 +12,8 @@ app = FastAPI()
 async def run_script():
     try:
         # Your dataframe building logic goes here
-        # df = build_dataframe()
+        #df = build_dataframe()
+        get_last_night_games()
         # process_and_save_data(df)
         
         print("Script completed successfully")
