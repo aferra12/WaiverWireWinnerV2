@@ -13,6 +13,8 @@ async def run_script():
     try:
         # Your dataframe building logic goes here
         #df = build_dataframe()
+        ## I SHOULD DELETE THIS FUNCTION AND PASS IN THE MOST RECENT DATES
+        ## TO GETGAMES.PY - THEN HAVE A SEPARATE EMAIL SENDING FUNCTION
         get_last_night_games()
         # process_and_save_data(df)
         
