@@ -108,26 +108,26 @@ def get_game_details(game_pks):
         return pd.DataFrame()
 
 # Example usage
-if __name__ == "__main__":
-    # Example list of game PKs
-    #game_pks = [718780]  # Replace with actual game PKs
-    game_pks = [777712, 777720, 777715, 777716, 777721, 777718, 777717, 777719, 777709, 777711, 777714, 777710, 777707, 777713, 777708]
+# if __name__ == "__main__":
+#     # Example list of game PKs
+#     #game_pks = [718780]  # Replace with actual game PKs
+#     game_pks = [777712, 777720, 777715, 777716, 777721, 777718, 777717, 777719, 777709, 777711, 777714, 777710, 777707, 777713, 777708]
     
-    # Get game details
-    details_df = get_game_details(game_pks)
+#     # Get game details
+#     details_df = get_game_details(game_pks)
     
-    # Display the DataFrame
-    if not details_df.empty:
-        print("\nGame Details:")
-        # Display a subset of columns for readability
-        display_columns = [
-            'gamePk', 'homeTeam', 'awayTeam', 'gameDate', 
-            'dayNight', 'gameDuration'
-        ]
-        print(details_df[display_columns])
+#     # Display the DataFrame
+#     if not details_df.empty:
+#         print("\nGame Details:")
+#         # Display a subset of columns for readability
+#         display_columns = [
+#             'gamePk', 'homeTeam', 'awayTeam', 'gameDate', 
+#             'dayNight', 'gameDuration'
+#         ]
+#         print(details_df[display_columns])
         
-        # Save to CSV (optional)
-        details_df.to_csv("mlb_game_details.csv", index=False)
-        print("Game details saved to mlb_game_details.csv")
-    else:
-        print("No game details retrieved.")
+#         # Save to CSV (optional)
+#         details_df.to_csv("mlb_game_details.csv", index=False)
+#         print("Game details saved to mlb_game_details.csv")
+#     else:
+#         print("No game details retrieved.")

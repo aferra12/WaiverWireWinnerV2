@@ -47,91 +47,168 @@ def get_player_game_logs(game_pks):
                     # I've decided that I'm just going to make one massive table for both pitchers, hitters, and game data #
                     # SHOULD I DO BATTERS HERE TOO WITH IS_PITCHER FLAG? PROBABLY #
 
+                    player_record = {
+                            'gamePk': game_pk,
+                            'playerId': player_id.replace('ID', ''),
+                            'playerName': player_info['person']['fullName'],
+                            'teamName': team_name,
+                            'isHome': True if team_type == 'home' else False
+                    }
+
                     # Check if player is a pitcher (position code "1")
                     if "position" in player_info and player_info["position"]["code"] == "1":
+                        player_record['isPitcher'] = True
                         
                         ### STOPPED HERE LAST TIME. NEED TO ADD IN FiELDS TO PULL ###
                         # Initialize player record with basic info
-                        player_record = {
-                            'game_pk': game_pk,
-                            'player_id': player_id.replace('ID', ''),
-                            'player_name': player_info['person']['fullName'],
-                            'team_name': team_name,
-                            'is_home': True if team_type == 'home' else False,
-                            'did_start': None,
-                            'did_pitch': None,  # Default value
-                            'num_pitches': None,
-                            'num_strikes': None,
-                            # IMPLEMENT ~API~ Calls to Statcast to Grab these and parse out of CSV
-                            # Run Value: https://baseballsavant.mlb.com/leaderboard/swing-take?year=2025&team=&leverage=Neutral&group=Pitcher&type=All&sub_type=null&min=10&csv=True
-                            # xwOBA: https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=pitcher&year=2025&position=&team=&filterType=bip&min=1
-                            # res = requests.get(url, timeout=None).content
-                            # data = pd.read_csv(io.StringIO(res.decode('utf-8')))
-                            # data = sanitize_statcast_columns(data)
-                            'run_value': None,
-                            'xwOBA': None
-                        }
+                        # player_record = {
+                        #     'game_pk': game_pk,
+                        #     'player_id': player_id.replace('ID', ''),
+                        #     'player_name': player_info['person']['fullName'],
+                        #     'team_name': team_name,
+                        #     'is_home': True if team_type == 'home' else False
+                        #     # 'did_start': None,
+                        #     # 'did_pitch': None,  # Default value
+                        #     # 'num_pitches': None,
+                        #     # 'num_strikes': None,
+                        #     # IMPLEMENT ~API~ Calls to Statcast to Grab these and parse out of CSV
+                        #     # Run Value: https://baseballsavant.mlb.com/leaderboard/swing-take?year=2025&team=&leverage=Neutral&group=Pitcher&type=All&sub_type=null&min=10&csv=True
+                        #     # xwOBA: https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=pitcher&year=2025&position=&team=&filterType=bip&min=1
+                        #     # res = requests.get(url, timeout=None).content
+                        #     # data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+                        #     # data = sanitize_statcast_columns(data)
+                        #     #'run_value': None,
+                        #     #'xwOBA': None
+                        # }
 
                         # Check if player has pitching stats for this game
                         if 'stats' in player_info and 'pitching' in player_info['stats'] and player_info['stats']['pitching']:
-                            player_record['did_pitch'] = True
+                            player_record['didPlay'] = True
+                            player_record['isStarter'] = True if player_info['stats']['pitching']['gamesStarted'] == 1 else False
                             
                             # Extract game pitching stats
                             pitching_stats = player_info['stats']['pitching']
+
+                            # add quality starts
+                            player_record['qualityStart'] = 1 if pitching_stats['inningsPitched'] >= 6 and pitching_stats['earnedRuns'] <= 3 else 0
                             
                             # Add relevant pitching stats to player record
                             pitching_fields = [
-                                'inningsPitched', 'hits', 'runs', 'earnedRuns', 'baseOnBalls', 
-                                'strikeOuts', 'homeRuns', 'pitchesThrown', 'strikes', 'balls',
-                                'era', 'battersFaced', 'outs', 'gamesPitched', 'gamesStarted',
-                                'completeGames', 'shutouts', 'holds', 'saves', 'blownSaves',
-                                'inheritedRunners', 'inheritedRunnersScored', 'wildPitches',
-                                'hitBatsmen', 'balks', 'wins', 'losses', 'note'
+                                'hits', 'runs', 'earnedRuns', 'baseOnBalls', 'strikeOuts',
+                                'homeRuns', 'pitchesThrown', 'strikes', 'balls', 'battersFaced',
+                                'outs', 'completeGames', 'shutouts', 'holds', 'saves', 'blownSaves',
+                                'inheritedRunners', 'inheritedRunnersScored', 'wildPitches', 'hitBatsmen',
+                                'balks', 'wins', 'losses', 'pickoffs'
                             ]
                             
                             for stat in pitching_fields:
                                 player_record[stat] = pitching_stats.get(stat, None)
+                        else:
+                            player_record['didPlay'] = False
                         
+                        # adding in Hilltopper and ESPN points
+                        player_record['hilltopperPts'] = player_record['outs']
+                        + player_record['earnedRuns'] * -3
+                        + player_record['wins'] * 6
+                        + player_record['losses'] * -3
+                        + player_record['saves'] * 14
+                        + player_record['blownSaves'] * -4
+                        + player_record['strikeOuts'] * 5
+                        + player_record['hits'] * -1
+                        + player_record['baseOnBalls'] * -1
+                        + player_record['hitBatsmen'] * -1
+                        + player_record['wildPitches'] * -1
+                        + player_record['balks'] * -7
+                        + player_record['pickoffs'] * 7
+                        + player_record['qualityStart'] * 8
+                        + player_record['holds'] * 7
+
                         # Add player record to dataset
-                        pitcher_data.append(player_record)
+                        player_data.append(player_record)
+
                     else:
-                        print("hi")
+                        player_record['isPitcher'] = False
+
+                        if 'stats' in player_info and 'batting' in player_info['stats'] and player_info['stats']['batting']:
+                            player_record['didPlay'] = True
+                            player_record['isStarter'] = False if player_info['gameStatus']['isSubstitute'] == True else False
+                            
+                            # Extract game pitching stats
+                            batting_stats = player_info['stats']['batting']
+
+                            player_record['sacrifices'] = batting_stats['sacBunts'] + batting_stats['sacFlies']
+                            player_record['singles'] = batting_stats['hits'] - batting_stats['doubles'] - batting_stats['triples'] - batting_stats['homeRuns']
+                            
+                            # Add relevant pitching stats to player record
+                            batting_fields = [
+                                'doubles', 'triples', 'homeRuns', 'baseOnBalls',
+                                'runs', 'rbi', 'stolenBases', 'strikeOuts', 'intentionalWalks',
+                                'hitByPitch', 'caughtStealing', 'groundIntoDoublePlay', 'plateAppearances'
+                            ]
+                            
+                            for stat in batting_fields:
+                                player_record[stat] = batting_stats.get(stat, None)
+                        else:
+                            player_record['didPlay'] = False
+                        
+                        # adding in Hilltopper and ESPN points
+                        player_record['hilltopperPts'] = player_record['singles'] * 2
+                        + player_record['doubles'] * 5
+                        + player_record['triples'] * 10
+                        + player_record['homeRuns'] * 14
+                        + player_record['baseOnBalls'] * 1
+                        + player_record['runs'] * 2
+                        + player_record['rbi'] * 4
+                        + player_record['stolenBases'] * 10
+                        + player_record['strikeOuts'] * -1
+                        + player_record['intentionalWalks'] * 7
+                        + player_record['hitByPitch'] * 1
+                        + player_record['caughtStealing'] * -2
+                        + player_record['groundIntoDoublePlay'] * -1
+                        + player_record['sacrifices'] * 1
+
+                        # Add player record to dataset
+                        player_data.append(player_record)
             
         except requests.exceptions.RequestException as e:
             print(f"Error retrieving data for game {game_pk}: {e}")
-    
+
     # Convert to DataFrame
-    df = pd.DataFrame(pitcher_data)
+    df = pd.DataFrame(player_data)
     
     # Convert numeric columns from strings to appropriate types
-    numeric_columns = [
-        'earnedRuns', 'runs', 'hits', 'strikeOuts', 'baseOnBalls', 'homeRuns',
-        'pitchesThrown', 'strikes', 'balls', 'battersFaced', 'outs', 'wildPitches',
-        'hitBatsmen', 'balks', 'inheritedRunners', 'inheritedRunnersScored',
-        'wins', 'losses', 'saves', 'holds', 'blownSaves'
-    ]
+    numeric_columns = ['hits', 'runs', 'earnedRuns', 'baseOnBalls', 'strikeOuts',
+                       'homeRuns', 'pitchesThrown', 'strikes', 'balls', 'battersFaced',
+                       'outs', 'completeGames', 'shutouts', 'holds', 'saves', 'blownSaves',
+                       'inheritedRunners', 'inheritedRunnersScored', 'wildPitches', 'hitBatsmen',
+                       'balks', 'wins', 'losses', 'sacrifices', 'singles', 'doubles', 'triples',
+                       'homeRuns', 'baseOnBalls', 'runs', 'rbi', 'stolenBases', 'strikeOuts',
+                       'intentionalWalks', 'hitByPitch', 'caughtStealing', 'groundIntoDoublePlay',
+                       'plateAppearances']
     
     for col in numeric_columns:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+            df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+
+    df = pd.merge(df, game_details, on='gamePk', how='inner')
     
     return df
 
-if __name__ == "__main__":
-    # Test with a sample game
-    game_pks = [718780]
-    pitcher_df = get_player_game_logs(game_pks)
+# if __name__ == "__main__":
+#     # Test with a sample game
+#     game_pks = [718780]
+#     pitcher_df = get_player_game_logs(game_pks)
     
-    # Display the results
-    print(f"Found {len(pitcher_df)} pitcher records")
-    print(f"Pitchers who pitched: {pitcher_df['did_pitch'].sum()}")
+#     # Display the results
+#     # print(f"Found {len(pitcher_df)} pitcher records")
+#     # print(f"Pitchers who pitched: {pitcher_df['did_p'].sum()}")
     
-    # Show pitchers who actually pitched in this game
-    print("\nPitchers who pitched in this game:")
-    if 'inningsPitched' in pitcher_df.columns:
-        print(pitcher_df[pitcher_df['did_pitch']][['player_name', 'team', 'inningsPitched', 'earnedRuns', 'strikeOuts', 'baseOnBalls']])
-    else:
-        print(pitcher_df[pitcher_df['did_pitch']][['player_name', 'team']])
+#     # # Show pitchers who actually pitched in this game
+#     # print("\nPitchers who pitched in this game:")
+#     # if 'inningsPitched' in pitcher_df.columns:
+#     #     print(pitcher_df[pitcher_df['did_pitch']][['player_name', 'team', 'inningsPitched', 'earnedRuns', 'strikeOuts', 'baseOnBalls']])
+#     # else:
+#     #     print(pitcher_df[pitcher_df['did_pitch']][['player_name', 'team']])
     
-    # Save to CSV for further analysis
-    pitcher_df.to_csv(f"pitcher_game_logs_{game_pks[0]}.csv", index=False)
+#     # Save to CSV for further analysis
+#     pitcher_df.to_csv(f"pitcher_game_logs_{game_pks[0]}.csv", index=False)

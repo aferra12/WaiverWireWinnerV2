@@ -5,6 +5,7 @@ import uvicorn
 # from helpers.data_processor import process_data
 # from helpers.api_client import fetch_data
 from helpers.getLastNightGames import get_last_night_games
+from helpers.getPlayerGameLogs import get_player_game_logs
 
 app = FastAPI()
 
@@ -15,7 +16,10 @@ async def run_script():
         #df = build_dataframe()
         ## I SHOULD DELETE THIS FUNCTION AND PASS IN THE MOST RECENT DATES
         ## TO GETGAMES.PY - THEN HAVE A SEPARATE EMAIL SENDING FUNCTION
-        get_last_night_games()
+
+        last_nights_game_pks = get_last_night_games()
+        game_logs = get_player_game_logs(last_nights_game_pks)
+
         # process_and_save_data(df)
         
         print("Script completed successfully")
