@@ -59,16 +59,16 @@ def get_games(start_date, end_date):
     return game_pks
 
 # Example usage
-if __name__ == "__main__":
-    # Example date range (2023 regular season opening week)
-    start_date = "2025-03-22"
-    end_date = "2025-03-27"
+# if __name__ == "__main__":
+#     # Example date range (2023 regular season opening week)
+#     start_date = "2025-03-22"
+#     end_date = "2025-03-27"
     
-    game_pks = get_games(start_date, end_date)
+#     game_pks = get_games(start_date, end_date)
     
-    # Display the list of game PKs
-    print(f"\nRetrieved {len(game_pks)} games between {start_date} and {end_date}")
-    print(game_pks)
+#     # Display the list of game PKs
+#     print(f"\nRetrieved {len(game_pks)} games between {start_date} and {end_date}")
+#     print(game_pks)
     
     # Save to text file (optional)
     # with open(f"mlb_game_pks_{start_date}_to_{end_date}.txt", "w") as f:
