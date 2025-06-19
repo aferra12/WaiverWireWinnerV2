@@ -6,6 +6,7 @@ import uvicorn
 # from helpers.api_client import fetch_data
 from helpers.getLastNightGames import get_last_night_games
 from helpers.getPlayerGameLogs import get_player_game_logs
+from helpers.sendEmail import send_email
 
 app = FastAPI()
 
@@ -19,8 +20,7 @@ async def run_script():
 
         last_nights_game_pks = get_last_night_games()
         game_logs = get_player_game_logs(last_nights_game_pks)
-
-        # process_and_save_data(df)
+        send_email(game_logs)
         
         print("Script completed successfully")
         return {"message": "Script completed successfully"}

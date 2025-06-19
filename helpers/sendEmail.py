@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import pandas as pd
 
-def get_last_night_games(game_logs):
+def send_email(game_logs):
 
     top_starting_pitchers = game_logs[game_logs['isPitcher'] == True].nlargest(7, 'hilltopperPts')[['playerName', 'outs', 'hilltopperPts']]
     top_relief_pitchers = game_logs[game_logs['isPitcher'] == True and game_logs['isStarter'] == False].nlargest(7, 'hilltopperPts')[['playerName', 'outs', 'hilltopperPts']]
@@ -43,7 +43,7 @@ def get_last_night_games(game_logs):
             
             <h3>Top 5 Pitchers</h3>
             {relief_pitchers_html}
-            
+
             <h3>Top 5 Pitchers</h3>
             {starting_pitchers_html}
             
