@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 import json
 
-from helpers.getGameDetails import get_game_details
+from .getGameDetails import get_game_details
 
 def get_player_game_logs(game_pks):
     """
