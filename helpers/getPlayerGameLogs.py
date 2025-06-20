@@ -190,7 +190,7 @@ def get_player_game_logs(game_pks):
                        'balks', 'wins', 'losses', 'sacrifices', 'singles', 'doubles', 'triples',
                        'homeRuns', 'baseOnBalls', 'runs', 'rbi', 'stolenBases', 'strikeOuts',
                        'intentionalWalks', 'hitByPitch', 'caughtStealing', 'groundIntoDoublePlay',
-                       'plateAppearances']
+                       'plateAppearances', 'hilltopperPts']
     
     for col in numeric_columns:
         if col in df.columns:
