@@ -6,7 +6,7 @@ import pandas as pd
 def send_email(game_logs):
 
     top_starting_pitchers = game_logs[game_logs['isPitcher'] == True].nlargest(7, 'hilltopperPts')[['playerName', 'outs', 'hilltopperPts']]
-    top_relief_pitchers = game_logs[game_logs['isPitcher'] == True and game_logs['isStarter'] == False].nlargest(7, 'hilltopperPts')[['playerName', 'outs', 'hilltopperPts']]
+    top_relief_pitchers = game_logs[(game_logs['isPitcher'] == True) & (game_logs['isStarter'] == False)].nlargest(7, 'hilltopperPts')[['playerName', 'outs', 'hilltopperPts']]
     top_batters = game_logs[game_logs['isPitcher'] == False].nlargest(7, 'hilltopperPts')[['playerName', 'homeRuns', 'hilltopperPts']]
         
     message = MIMEMultipart()

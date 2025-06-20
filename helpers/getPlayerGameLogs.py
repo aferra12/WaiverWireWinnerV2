@@ -41,8 +41,8 @@ def get_player_game_logs(game_pks):
                 # Process each player on the team
                 for player_id, player_info in data['teams'][team_type]['players'].items():
 
-                    with open(f'player_info_{player_id}.json', 'w', encoding='utf-8') as f:
-                        json.dump(player_info, f, ensure_ascii=False, indent=4)
+                    # with open(f'player_info_{player_id}.json', 'w', encoding='utf-8') as f:
+                    #     json.dump(player_info, f, ensure_ascii=False, indent=4)
 
                     # I've decided that I'm just going to make one massive table for both pitchers, hitters, and game data #
                     # SHOULD I DO BATTERS HERE TOO WITH IS_PITCHER FLAG? PROBABLY #
@@ -103,25 +103,28 @@ def get_player_game_logs(game_pks):
                             
                             for stat in pitching_fields:
                                 player_record[stat] = pitching_stats.get(stat, None)
+                            
+                            # adding in Hilltopper and ESPN points
+                            player_record['hilltopperPts'] = (
+                                player_record['outs'] +
+                                player_record['earnedRuns'] * -3 +
+                                player_record['wins'] * 6 +
+                                player_record['losses'] * -3 +
+                                player_record['saves'] * 14 +
+                                player_record['blownSaves'] * -4 +
+                                player_record['strikeOuts'] * 5 +
+                                player_record['hits'] * -1 +
+                                player_record['baseOnBalls'] * -1 +
+                                player_record['hitBatsmen'] * -1 +
+                                player_record['wildPitches'] * -1 +
+                                player_record['balks'] * -7 +
+                                player_record['pickoffs'] * 7 +
+                                player_record['qualityStart'] * 8 +
+                                player_record['holds'] * 7
+                            )
+                            
                         else:
                             player_record['didPlay'] = False
-                        
-                        # adding in Hilltopper and ESPN points
-                        player_record['hilltopperPts'] = player_record['outs']
-                        + player_record['earnedRuns'] * -3
-                        + player_record['wins'] * 6
-                        + player_record['losses'] * -3
-                        + player_record['saves'] * 14
-                        + player_record['blownSaves'] * -4
-                        + player_record['strikeOuts'] * 5
-                        + player_record['hits'] * -1
-                        + player_record['baseOnBalls'] * -1
-                        + player_record['hitBatsmen'] * -1
-                        + player_record['wildPitches'] * -1
-                        + player_record['balks'] * -7
-                        + player_record['pickoffs'] * 7
-                        + player_record['qualityStart'] * 8
-                        + player_record['holds'] * 7
 
                         # Add player record to dataset
                         player_data.append(player_record)
@@ -131,7 +134,7 @@ def get_player_game_logs(game_pks):
 
                         if 'stats' in player_info and 'batting' in player_info['stats'] and player_info['stats']['batting']:
                             player_record['didPlay'] = True
-                            player_record['isStarter'] = False if player_info['gameStatus']['isSubstitute'] == True else False
+                            player_record['isStarter'] = False if player_info['gameStatus']['isSubstitute'] == True else True
                             
                             # Extract game pitching stats
                             batting_stats = player_info['stats']['batting']
@@ -148,24 +151,27 @@ def get_player_game_logs(game_pks):
                             
                             for stat in batting_fields:
                                 player_record[stat] = batting_stats.get(stat, None)
+                            
+                            # adding in Hilltopper and ESPN points
+                            player_record['hilltopperPts'] = (
+                                player_record['singles'] * 2 +
+                                player_record['doubles'] * 5 +
+                                player_record['triples'] * 10 +
+                                player_record['homeRuns'] * 14 +
+                                player_record['baseOnBalls'] * 1 +
+                                player_record['runs'] * 2 +
+                                player_record['rbi'] * 4 +
+                                player_record['stolenBases'] * 10 +
+                                player_record['strikeOuts'] * -1 +
+                                player_record['intentionalWalks'] * 7 +
+                                player_record['hitByPitch'] * 1 +
+                                player_record['caughtStealing'] * -2 +
+                                player_record['groundIntoDoublePlay'] * -1 +
+                                player_record['sacrifices'] * 1
+                            )
+
                         else:
                             player_record['didPlay'] = False
-                        
-                        # adding in Hilltopper and ESPN points
-                        player_record['hilltopperPts'] = player_record['singles'] * 2
-                        + player_record['doubles'] * 5
-                        + player_record['triples'] * 10
-                        + player_record['homeRuns'] * 14
-                        + player_record['baseOnBalls'] * 1
-                        + player_record['runs'] * 2
-                        + player_record['rbi'] * 4
-                        + player_record['stolenBases'] * 10
-                        + player_record['strikeOuts'] * -1
-                        + player_record['intentionalWalks'] * 7
-                        + player_record['hitByPitch'] * 1
-                        + player_record['caughtStealing'] * -2
-                        + player_record['groundIntoDoublePlay'] * -1
-                        + player_record['sacrifices'] * 1
 
                         # Add player record to dataset
                         player_data.append(player_record)
@@ -190,14 +196,15 @@ def get_player_game_logs(game_pks):
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
 
-    df = pd.merge(df, game_details, on='gamePk', how='inner')
-    
+    df = pd.merge(df, game_details, on='gamePk', how='left')
+
     return df
 
 # if __name__ == "__main__":
 #     # Test with a sample game
 #     game_pks = [718780]
 #     pitcher_df = get_player_game_logs(game_pks)
+#     print(pitcher_df)
     
 #     # Display the results
 #     # print(f"Found {len(pitcher_df)} pitcher records")
