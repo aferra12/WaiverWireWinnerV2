@@ -90,7 +90,7 @@ def get_player_game_logs(game_pks):
                             pitching_stats = player_info['stats']['pitching']
 
                             # add quality starts
-                            player_record['qualityStart'] = 1 if pitching_stats['inningsPitched'] >= 6 and pitching_stats['earnedRuns'] <= 3 else 0
+                            player_record['qualityStart'] = 1 if pitching_stats['outs'] >= 18 and pitching_stats['earnedRuns'] <= 3 else 0
                             
                             # Add relevant pitching stats to player record
                             pitching_fields = [
