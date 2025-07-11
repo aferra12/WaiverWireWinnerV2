@@ -1,24 +1,25 @@
 import pandas as pd
-from pandas_gbq import to_gbq
+import pandas_gbq
 import os
 import json
-import tempfile
+from google.oauth2 import service_account
 
 def write_to_big_query(game_logs: pd.DataFrame):
     """
     Writes Pandas DataFrame of Game Logs to BigQuery Table
     """
 
-    # Create temporary credentials file
+    # Get GCP service account credentials
     creds_json = os.environ['GCP_SA_KEY']
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        f.write(creds_json)
-        creds_path = f.name
+    creds_dict = json.loads(creds_json)
 
-    game_logs.to_gbq(
+    credentials = service_account.Credentials.from_service_account_info(creds_dict)
+
+    pandas_gbq.to_gbq(
+        game_logs,
         os.environ['BIG_QUERY_TABLE'],
         project_id=os.environ['PROJECT_ID'],
         chunksize=10000,
         if_exists='replace',
-        credentials=creds_path
+        credentials=credentials
     )
