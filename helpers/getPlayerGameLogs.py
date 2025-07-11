@@ -220,6 +220,7 @@ def get_player_game_logs(game_pks: list) -> pd.DataFrame:
 
     for col in numeric_columns:
         if col in df.columns:
+            print(f"Converting: {col}")
             df[col] = pd.to_numeric(df[col], errors='coerce').astype('int64')
 
     df = pd.merge(df, game_details, on='gamePk', how='left')
