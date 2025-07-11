@@ -23,6 +23,7 @@ async def run_script():
 
         last_nights_game_pks = get_last_night_games()
         game_logs = get_player_game_logs(last_nights_game_pks)
+        write_to_big_query(game_logs, replace_or_append="append")
         send_email(game_logs)
         
         print("Nightly Game Script completed successfully")
@@ -40,7 +41,7 @@ async def run_backfill(start_date: str, end_date: str):
 
         print("Game Logs Completed...")
         
-        write_to_big_query(game_logs)
+        write_to_big_query(game_logs, replace_or_append="replace")
 
         print("Game Logs Backfill Script completed successfully")
         return {"message": "Game Logs BackfillScript completed successfully"}
