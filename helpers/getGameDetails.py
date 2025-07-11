@@ -96,7 +96,7 @@ def get_game_details(game_pks):
             }
             
             game_details.append(game_detail)
-            print(f"Retrieved details for game {game_pk}")
+            #print(f"Retrieved details for game {game_pk}")
             
         except requests.exceptions.RequestException as e:
             print(f"Error retrieving data for game {game_pk}: {e}")
