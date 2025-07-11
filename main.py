@@ -37,6 +37,8 @@ async def run_backfill(start_date: str, end_date: str):
 
         game_pks = get_games(start_date, end_date)
         game_logs = get_player_game_logs(game_pks)
+
+        print("Game Logs Completed...")
         
         write_to_big_query(game_logs)
 
