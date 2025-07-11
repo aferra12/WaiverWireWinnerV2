@@ -3,7 +3,7 @@
 import requests
 from datetime import datetime, timedelta
 
-def get_games(start_date, end_date):
+def get_games(start_date: str, end_date: str) -> list:
     """
     Retrieve MLB game PKs for a given date range.
     

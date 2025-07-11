@@ -4,7 +4,7 @@ import json
 
 from .getGameDetails import get_game_details
 
-def get_player_game_logs(game_pks):
+def get_player_game_logs(game_pks: list) -> pd.DataFrame:
     """
     Extract player game logs from MLB Stats API for specified games.
     
@@ -122,6 +122,18 @@ def get_player_game_logs(game_pks):
                                 player_record['qualityStart'] * 8 +
                                 player_record['holds'] * 7
                             )
+
+                            player_record['espnPts'] = (
+                                player_record['outs'] +
+                                player_record['earnedRuns'] * -2 +
+                                player_record['wins'] * 2 +
+                                player_record['losses'] * -2 +
+                                player_record['saves'] * 2 +
+                                player_record['strikeOuts'] +
+                                player_record['hits'] * -1 +
+                                player_record['baseOnBalls'] * -1 +
+                                player_record['holds'] * 2
+                            )
                             
                         else:
                             player_record['didPlay'] = False
@@ -170,6 +182,18 @@ def get_player_game_logs(game_pks):
                                 player_record['sacrifices'] * 1
                             )
 
+                            player_record['espnPts'] = (
+                                player_record['singles'] +
+                                player_record['doubles'] * 2 +
+                                player_record['triples'] * 3 +
+                                player_record['homeRuns'] * 4 +
+                                player_record['baseOnBalls'] +
+                                player_record['runs'] +
+                                player_record['rbi'] +
+                                player_record['stolenBases'] +
+                                player_record['strikeOuts'] * -1
+                            )
+
                         else:
                             player_record['didPlay'] = False
 
@@ -186,15 +210,17 @@ def get_player_game_logs(game_pks):
     numeric_columns = ['hits', 'runs', 'earnedRuns', 'baseOnBalls', 'strikeOuts',
                        'homeRuns', 'pitchesThrown', 'strikes', 'balls', 'battersFaced',
                        'outs', 'completeGames', 'shutouts', 'holds', 'saves', 'blownSaves',
-                       'inheritedRunners', 'inheritedRunnersScored', 'wildPitches', 'hitBatsmen',
-                       'balks', 'wins', 'losses', 'sacrifices', 'singles', 'doubles', 'triples',
-                       'homeRuns', 'baseOnBalls', 'runs', 'rbi', 'stolenBases', 'strikeOuts',
+                       'qualityStart', 'inheritedRunners', 'inheritedRunnersScored', 'wildPitches',
+                       'hitBatsmen', 'balks', 'wins', 'losses', 'sacrifices', 'singles', 'doubles',
+                       'triples', 'homeRuns', 'baseOnBalls', 'runs', 'rbi', 'stolenBases', 'strikeOuts',
                        'intentionalWalks', 'hitByPitch', 'caughtStealing', 'groundIntoDoublePlay',
-                       'plateAppearances', 'hilltopperPts']
+                       'plateAppearances', 'hilltopperPts', 'espnPts', 'pickoffs', 'gamePk', 'gameDuration']
     
+    df['isStarter'] = pd.to_numeric(df['isStarter'], errors='coerce').astype('bool')
+
     for col in numeric_columns:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+            df[col] = pd.to_numeric(df[col], errors='coerce').astype('int64')
 
     df = pd.merge(df, game_details, on='gamePk', how='left')
 
