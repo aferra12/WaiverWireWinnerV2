@@ -10,7 +10,7 @@ def write_to_big_query(game_logs: pd.DataFrame):
     """
 
     # Create temporary credentials file
-    creds_json = os.environ['GOOGLE_APPLICATION_CREDENTIALS_JSON']
+    creds_json = os.environ['GCP_SA_KEY']
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         f.write(creds_json)
         creds_path = f.name
