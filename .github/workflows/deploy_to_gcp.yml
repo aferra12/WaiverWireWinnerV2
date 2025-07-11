@@ -9,7 +9,7 @@ env:
   PROJECT_ID: sanguine-robot-454100-s3
   SERVICE_NAME: run-nightly-mlb-games
   REGION: us-central1
-  GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.YOUR_SERVICE_ACCOUNT_KEY }}
+  GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GCP_SA_KEY }}
   BIG_QUERY_TABLE: waiver_wire_winner.player_game_logs
 
 jobs:
