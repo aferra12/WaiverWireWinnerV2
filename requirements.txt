@@ -11,3 +11,4 @@ tzdata==2025.2
 urllib3==2.3.0
 fastapi[standard]
 uvicorn[standard]
+pandas-gbq

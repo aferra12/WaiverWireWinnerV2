@@ -103,7 +103,9 @@ def get_game_details(game_pks):
     
     # Create DataFrame from collected data
     if game_details:
-        return pd.DataFrame(game_details)
+        game_details_df = pd.DataFrame(game_details)
+        game_details_df['gameDate'] = pd.to_datetime(game_details_df['gameDate'], format='%Y-%m-%d')
+        return game_details_df
     else:
         return pd.DataFrame()
 
