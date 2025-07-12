@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 import uvicorn
 import datetime
 # Import your helper modules as needed
@@ -33,18 +33,22 @@ async def run_script():
         raise HTTPException(status_code=500, detail=f"Script failed: {str(e)}")
     
 @app.get("/run_backfill")
-async def run_backfill(start_date: str, end_date: str):
+async def run_backfill(start_date: str, end_date: str, background_tasks: BackgroundTasks):
     try:
 
         game_pks = get_games(start_date, end_date)
         game_logs = get_player_game_logs(game_pks)
 
         print("Game Logs Completed...")
-        
-        write_to_big_query(game_logs, replace_or_append="replace")
 
-        print("Game Logs Backfill Script completed successfully")
-        return {"message": "Game Logs BackfillScript completed successfully"}
+        # This happens AFTER the response is sent
+        background_tasks.add_task(write_to_big_query, game_logs, "replace")
+
+        print("Running BigQuery drop in the background...")
+        
+        # Response sent immediately - no timeout!
+        return {"message": "Game Logs processing started, writing to BigQuery in background"}
+
     except Exception as e:
         print(f"Script failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Script failed: {str(e)}")
