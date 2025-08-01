@@ -84,6 +84,7 @@ def get_player_game_logs(game_pks: list) -> pd.DataFrame:
                         # Check if player has pitching stats for this game
                         if 'stats' in player_info and 'pitching' in player_info['stats'] and player_info['stats']['pitching']:
                             player_record['didPlay'] = True
+                            # need a check here that if didPlay is false, isStarter is also false
                             player_record['isStarter'] = True if player_info['stats']['pitching']['gamesStarted'] == 1 else False
                             
                             # Extract game pitching stats
@@ -223,6 +224,11 @@ def get_player_game_logs(game_pks: list) -> pd.DataFrame:
             df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
 
     df = pd.merge(df, game_details, on='gamePk', how='left')
+
+    df = df.sort_values(['playerId', 'gamePk'])
+    df['pitch_group'] = df.groupby('player_id')['did_pitch'].cumsum()
+    df['games_rest'] = df.groupby(['player_id', 'pitch_group']).cumcount()
+    df = df.drop('pitch_group', axis=1) 
 
     return df
 

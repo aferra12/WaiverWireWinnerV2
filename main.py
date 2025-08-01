@@ -10,6 +10,8 @@ from helpers.getPlayerGameLogs import get_player_game_logs
 from helpers.sendEmail import send_email
 from helpers.getGames import get_games
 from helpers.writeBigQuery import write_to_big_query
+from helpers.getLikelyPitchers import get_likely_pitchers
+from helpers.postPicks import post_picks
 
 app = FastAPI()
 
@@ -31,6 +33,16 @@ async def run_script():
     except Exception as e:
         print(f"Script failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Script failed: {str(e)}")
+
+@app.post("/post_picks")
+async def post_to_social():
+    # likely_pitchers = get_likely_pitchers()
+    # post_picks(likely_pitchers)
+    try:
+        post_picks()
+    except Exception as e:
+        print(f"Posting to socials failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Posting to socials failed: {str(e)}")
     
 @app.get("/run_backfill")
 async def run_backfill(start_date: str, end_date: str, background_tasks: BackgroundTasks):
@@ -52,6 +64,10 @@ async def run_backfill(start_date: str, end_date: str, background_tasks: Backgro
     except Exception as e:
         print(f"Script failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Script failed: {str(e)}")
+    
+@app.get("/callback_stub")
+async def callback_stub():
+    pass
 
 def build_dataframe():
     # Your actual dataframe building code
