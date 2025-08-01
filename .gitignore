@@ -6,3 +6,4 @@ src/waiver_wire_winner.py
 src/Untitled.ipynb
 /venv
 .DS_Store
+.env
