@@ -225,11 +225,6 @@ def get_player_game_logs(game_pks: list) -> pd.DataFrame:
 
     df = pd.merge(df, game_details, on='gamePk', how='left')
 
-    df = df.sort_values(['playerId', 'gamePk'])
-    df['pitch_group'] = df.groupby('player_id')['did_pitch'].cumsum()
-    df['games_rest'] = df.groupby(['player_id', 'pitch_group']).cumcount()
-    df = df.drop('pitch_group', axis=1) 
-
     return df
 
 # if __name__ == "__main__":
