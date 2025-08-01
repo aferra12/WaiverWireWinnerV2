@@ -4,6 +4,8 @@ import os
 
 def post_twitter():
 
+    print("Testing Twitter Posts")
+
     twitter = OAuth1Session(
         client_key=os.environ['TWITTER_API_KEY'],
         client_secret=os.environ['TWITTER_API_SECRET'],
