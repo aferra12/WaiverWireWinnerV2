@@ -15,9 +15,7 @@ def post_twitter():
 
     url = "https://api.x.com/2/tweets"
 
-    payload = json.dumps({
-    "text": "I love Tyler Alexander (test 2)"
-    })
+    payload = {"text": "I love Tyler Alexander (test 2)"}
 
     try:
 
