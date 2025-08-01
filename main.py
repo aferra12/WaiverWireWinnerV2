@@ -24,8 +24,11 @@ async def run_script():
         ## TO GETGAMES.PY - THEN HAVE A SEPARATE EMAIL SENDING FUNCTION
 
         last_nights_game_pks = get_last_night_games()
+        print("Last Nights Games: ", last_nights_game_pks)
         game_logs = get_player_game_logs(last_nights_game_pks)
+        print("Game logs created fine")
         write_to_big_query(game_logs, replace_or_append="append")
+        print("Big Query writing was fine")
         send_email(game_logs)
         
         print("Nightly Game Script completed successfully")
