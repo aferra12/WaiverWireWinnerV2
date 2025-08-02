@@ -274,3 +274,34 @@ print("=" * 50)
 print("Rest Days, Predicted Probability")
 for i, prob in enumerate(predicted_probs):
     print(f"{i}, {prob:.4f}")
+
+
+# Get all MLB Team IDs
+
+mlb_teams_url = "https://statsapi.mlb.com/api/v1/teams"
+    params = {"sportId": 1}
+
+    response = requests.get(mlb_teams_url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        teams = data.get("teams", [])
+        
+        # Filter for only MLB teams (league IDs 103 = AL, 104 = NL)
+        mlb_teams = []
+        for team in teams:
+            league = team.get("league", {})
+            league_id = league.get("id")
+            
+            # Only include American League (103) and National League (104) teams
+            if league_id in [103, 104]:
+                mlb_teams.append({
+                    "id": team["id"],
+                    "name": team["name"]
+                })
+        
+        mlb_teams = pd.DataFrame(mlb_teams)
+    else:
+        print(f"Error: {response.status_code}")
+
+    mlb_teams.to_csv("mlb_team_id.csv", index=False)

@@ -39,10 +39,9 @@ async def run_script():
 
 @app.post("/post_picks")
 async def post_to_social():
-    # likely_pitchers = get_likely_pitchers()
-    # post_picks(likely_pitchers)
     try:
-        post_picks()
+        likely_pitchers = get_likely_pitchers()
+        post_picks(likely_pitchers)
     except Exception as e:
         print(f"Posting to socials failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Posting to socials failed: {str(e)}")

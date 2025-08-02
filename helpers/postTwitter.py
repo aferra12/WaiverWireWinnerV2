@@ -1,10 +1,11 @@
 from requests_oauthlib import OAuth1Session
 import json
 import os
+from datetime import datetime
 
-def post_twitter():
+def post_twitter(picks_to_post):
 
-    print("Testing Twitter Posts")
+    print("Sending Twitter Post...")
 
     twitter = OAuth1Session(
         client_key=os.environ['TWITTER_API_KEY'],
@@ -15,7 +16,15 @@ def post_twitter():
 
     url = "https://api.x.com/2/tweets"
 
-    payload = {"text": "I love Tyler Alexander (test 2)"}
+    current_date = datetime.now().strftime("%-m/%-d")
+    top_5_players = picks_to_post.head(5)['playerName'].tolist()
+    player_names_str = "\n".join(top_5_players)
+
+    tweet_text = f"Quick Picks for {current_date}:\n\n{player_names_str}"
+
+    print(tweet_text)
+
+    payload = {"text": tweet_text}
 
     try:
 
