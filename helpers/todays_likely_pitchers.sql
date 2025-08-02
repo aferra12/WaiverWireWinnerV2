@@ -4,6 +4,7 @@ WITH numbered_games AS (
     playerId,
     playerName,
     didPlay,
+    isStarter,
     pitchesThrown,
     hilltopperPts,
     EXTRACT(YEAR FROM gameDate) as gameYear,
@@ -23,7 +24,7 @@ appearances_only AS (
     gameNumber,
     LAG(gameNumber) OVER (PARTITION BY playerId, playerName, gameYear ORDER BY gameDate) AS prevAppGameNumber
   FROM numbered_games
-  WHERE didPlay = TRUE
+  WHERE didPlay = TRUE AND isStarter = FALSE
 ),
 
 games_rest AS (
@@ -129,5 +130,5 @@ ON cgr.playerId = mgr.playerId
 WHERE
   mgr.gameYear = EXTRACT(YEAR FROM CURRENT_DATE())
   AND cgr.gamesRest >= mgr.medianGamesRest
-  --AND cgr.daysSinceLastApp < 10
+  AND cgr.gamesRest < 10
 ORDER BY boomFantasyPoints DESC

@@ -14,7 +14,7 @@ def get_likely_pitchers():
 
     credentials = service_account.Credentials.from_service_account_info(creds_dict)
 
-    with open('todays_likely_pitchers.sql', 'r') as f:
+    with open('helpers/todays_likely_pitchers.sql', 'r') as f:
         sql_query = f.read()
 
     sql_pitchers = pandas_gbq.read_gbq(
