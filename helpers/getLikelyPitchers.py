@@ -23,7 +23,7 @@ def get_likely_pitchers():
         credentials=credentials
     )
 
-    # sql_pitchers = pd.read_csv('helpers/bquxjob_7c76f273_19865e463d2.csv')
+    # sql_pitchers = pd.read_csv('helpers/bquxjob_53eae280_1986dc3ffb3.csv')
 
     # Filter likely pitchers by who is available in ESPN
 
@@ -32,14 +32,15 @@ def get_likely_pitchers():
     espn_params = {
         #"view": ["freeAgents"]
         "scoringPeriodId": 0,
-        "view": ["players_wl", "kona_player_info"]
+        "view": ["players_wl"],
+        "seasonId": 2025
     }
 
-    # headers = {'X-Fantasy-Filter': '{"filterActive":{"value":true}}'}
-    espn_headers = {}
+    headers = {'X-Fantasy-Filter': '{"filterActive":{"value":true}}'}
+    #espn_headers = {}
     # player_ids = [3210625]
     # headers["X-Fantasy-Filter"] = f'{{"filterIds":{{"value":{player_ids}}}}}'
-    espn_headers['X-Fantasy-Filter'] = f'{{"filterActive":{{"value":true}}}}'
+    # espn_headers['X-Fantasy-Filter'] = f'{{"filterActive":{{"value":true}}}}'
 
     cookies = {
         "swid": "{DEF635BE-7DB6-462F-86E1-B1945753DC0A}",
@@ -51,27 +52,32 @@ def get_likely_pitchers():
         espn_response = requests.get(
             espn_base_url,
             params=espn_params,
-            headers=espn_headers,
-            cookies=cookies
+            headers=headers,
+            #cookies=cookies
         )
         espn_response.raise_for_status()
             
         # Extract data from response
         espn_data = espn_response.json()
 
-        espn_player_data = pd.DataFrame([{
-            'id': player['id'],
-            'name': player['fullName'],
-            'position': player['defaultPositionId'],
-            'team': player['proTeamId'],
-            'ownership_pct': round(player['ownership']['percentOwned'], 2)
-        } for player in espn_data])
+        parsed_data = []
+        for player in espn_data:
+            player_info = {
+                'id': player.get('id'),
+                'player_name': player.get('fullName'),
+                'position_id': player.get('defaultPositionId'),
+                'team': player.get('proTeamId'),
+                'percent_owned': player['ownership'].get('percentOwned') if 'ownership' in player else None
+            }
+            parsed_data.append(player_info)
 
-        low_owned_players = espn_player_data[espn_player_data['ownership_pct'] < 7.5]
-        low_owned_pitchers = low_owned_players[low_owned_players['position'].isin([1, 11]) & low_owned_players['team'] != 0]
+        # Create pandas DataFrame
+        espn_player_data = pd.DataFrame(parsed_data)
 
-        merged_df = sql_pitchers.merge(low_owned_pitchers, left_on='playerName', right_on='name')
+        low_owned_players = espn_player_data[espn_player_data['percent_owned'] < 7.5]
+        low_owned_pitchers = low_owned_players[low_owned_players['position_id'].isin([1, 11]) & low_owned_players['team'] != 0]
 
+        merged_df = sql_pitchers.merge(low_owned_pitchers, left_on='playerName', right_on='player_name')
         # Select and rename relevant columns
         likely_pitchers_df = merged_df[['playerId', 'playerName', 'gamesRest', 'avgFantasyPts', 'boomFantasyPoints']]
         
